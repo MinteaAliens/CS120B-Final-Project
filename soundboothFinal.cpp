@@ -161,7 +161,8 @@ int TickFct_LCDOutput(int state) {
       state = LO_MenuOptionA;
       LCDWriteLines("Song 1  Song 2  ", "Song 3  Select ");
     break;
-    case LO_MenuOptionA:
+    case LO_MenuOptionA: //this is the main menu, so by switching to a different menu option, 
+      // we get different screens saying which song is playing
       if(menuOption == 1) {
         state = LO_MenuOptionB;
         LCDWriteLines("Playing   Song 1", "Pause   Play    ");
@@ -219,7 +220,8 @@ int TickFct_LCDOutput(int state) {
     break;    
   }
 
-  switch (state) { // State Actions
+  /* KEEP CODE IN HERE JUST TO SHOW WE DO NOT USE STATE ACTIONS
+  switch (state) { // State Action
     case LO_MenuOptionA:
     
     break;
@@ -227,6 +229,7 @@ int TickFct_LCDOutput(int state) {
    
     break;
   }
+*/
   return state;
 }
 
@@ -238,7 +241,7 @@ int TickFct_JoystickInput(int state) {
     case JI_init:
       state = JI_NoMovement;
     break;
-    case JI_NoMovement:
+    case JI_NoMovement: // waiting for an input...
       if ((readStickY() != 0) || (readStickX() != 0)){
         state = JI_Movement;
         if (readStickX() == 1 && (cursor_pos != 1 && cursor_pos != 3)){
@@ -260,13 +263,15 @@ int TickFct_JoystickInput(int state) {
         js_pressed = 1; //set to 0 in controller
       } 
     break;
-    case JI_Movement:
+    case JI_Movement: // we have movement at this point, but we do not want constant readings,
+      //so we will wait for no movement so we can wait for an input again
       if (!(readStickY() != 0) || (readStickX() != 0)){
         state = JI_NoMovement;
       }
     break;
   }
 
+  /* KEEP CODE IN HERE JUST TO SHOW WE DO NOT USE STATE ACTIONS
    switch (state) { // State Actions
     case JI_init:
     break;
@@ -277,9 +282,12 @@ int TickFct_JoystickInput(int state) {
     default:
     break;    
   }
+*/
   return state;
 }
+
 // Sound Output
+// THIS FUNCTION IS NOT MY CODE! PROVIDED BY TA'S
 int counter = 0;
 int note = 0;
 int TickFct_SoundOutput(int state) {
@@ -441,9 +449,10 @@ void PrintCursor(){ //set *'s if necessary. At the end, set cursor back to where
   lcd.cursor();
 }
 
-// Task 4 (Unused)
 // Handles the cursor 
 int TickFct_Controller(int state) {
+
+  /* KEEP JUST TO SHOW WE DO NOT USE STATE TRANSITIONS
   switch (state) { // State Transitions
     case C_init:
       state = C_Main;
@@ -455,8 +464,19 @@ int TickFct_Controller(int state) {
       state = C_Main;
     break;
   }
+*/
 
    switch (state) { // State Actions
+     /*
+     I found that setting and printing our cursor was constantly a hassle,
+     so I used a separate state machine to get place our cursor based on cursor_pos which should only change
+     mainly from joystick input.
+
+     That is all this state machine really does. Because each menu does not have consistent placing for the cursor,
+     a state machine was used.
+     For example, the menu has four different areas where the cursor can be,
+     while for a song, the cursor can only be on the bottom row.
+       */
     case C_init:
     break;
     case C_Main:
